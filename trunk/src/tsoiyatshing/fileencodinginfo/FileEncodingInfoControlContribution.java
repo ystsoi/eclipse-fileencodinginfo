@@ -99,7 +99,7 @@ public class FileEncodingInfoControlContribution extends
 		if (charset_match_list != null) {
 			final Menu file_encoding_popup_menu = new Menu(file_encoding_label);
 			file_encoding_label.setMenu(file_encoding_popup_menu);
-			file_encoding_label.setToolTipText("Right-click to change the current encoding");
+			file_encoding_label.setToolTipText(String.format("Right-click to change the encoding of '%s'", current_text_file.getName()));
 			// Add the menu items dynamically.
 			file_encoding_popup_menu.addMenuListener(new MenuAdapter() {
 				@Override

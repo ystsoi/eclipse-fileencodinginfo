@@ -15,7 +15,7 @@ import org.eclipse.swt.events.MenuAdapter;
 import org.eclipse.swt.events.MenuEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -74,11 +74,9 @@ public class FileEncodingInfoControlContribution extends
 		int current_file_encoding_confidence = getConfidence(charset_match_list, current_file_encoding);
 		int detected_file_encoding_confidence = charset_match_list == null ? 0 : charset_match_list[0].getConfidence();
 		
-		// Give some room around the label.
+		// Use GridLayout to center the label vertically.
 		Composite comp = new Composite(parent, SWT.NONE);
-		FillLayout layout = new FillLayout();
-		layout.marginHeight = 2;
-		layout.marginWidth = 2;
+		GridLayout layout = new GridLayout();
 		comp.setLayout(layout);
 		
 		// Set the label.

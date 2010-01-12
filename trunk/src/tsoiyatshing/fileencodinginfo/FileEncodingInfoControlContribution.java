@@ -18,12 +18,15 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.INullSelectionListener;
 import org.eclipse.ui.ISelectionListener;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.menus.WorkbenchWindowControlContribution;
 import org.eclipse.ui.texteditor.ITextEditor;
@@ -41,7 +44,7 @@ public class FileEncodingInfoControlContribution extends
 		WorkbenchWindowControlContribution implements INullSelectionListener,
 		IResourceChangeListener {
 
-	// The file associated with the current text editor.
+	// File encoding information is shown for this file.
 	private IFile current_text_file = null;
 	
 	// Listeners.
@@ -63,7 +66,8 @@ public class FileEncodingInfoControlContribution extends
 		// Add listeners, if needed.
 		addListeners();
 		
-		// Get the encoding information.
+		// Get the encoding information of the active text file.
+		current_text_file = getActiveTextFile();
 		final String current_file_encoding = getCurrentTextFileCharset();
 		final CharsetMatch[] charset_match_list = detectCurrentTextFileCharsets();
 		String detected_file_encoding = charset_match_list == null ? null : charset_match_list[0].getName();
@@ -148,18 +152,8 @@ public class FileEncodingInfoControlContribution extends
 	
 	@Override
 	public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-		// Check whether the user switches to edit another text file.
-		IFile new_current_text_file = null;
-		if (part != null && part instanceof ITextEditor) {
-			ITextEditor editor = (ITextEditor) part;
-			if (editor.getEditorInput() instanceof IFileEditorInput) {
-				new_current_text_file = ((IFileEditorInput) editor.getEditorInput()).getFile();
-			}
-		}
-		
-		// Update the encoding information if the current text file changed.
-		if (new_current_text_file != current_text_file) {
-			current_text_file = new_current_text_file;
+		// Update the encoding information if the active text file changed.
+		if (getActiveTextFile() != current_text_file) {
 			updateEncodingInfo();
 		}
 	}
@@ -197,7 +191,30 @@ public class FileEncodingInfoControlContribution extends
 	 */
 	private void updateEncodingInfo() {
 		// Cannot make resize work, need to call createControl() again.
-		getParent().update(true);
+		// Do update in the UI thread.
+		Display.getDefault().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				getParent().update(true);
+			}
+		});
+	}
+	
+	/**
+	 * Get the file associated with the active text editor.
+	 * @return the active text file, or null if there is no active text editor or if the editor input is not IFileEditorInput or if the file does not exist.
+	 */
+	private IFile getActiveTextFile() {
+		IWorkbenchPage page = getWorkbenchWindow().getActivePage();
+		IEditorPart part = page == null ? null : page.getActiveEditor();
+		if (part != null && part instanceof ITextEditor) {
+			ITextEditor editor = (ITextEditor) part;
+			if (editor.getEditorInput() instanceof IFileEditorInput) {
+				IFile file = ((IFileEditorInput) editor.getEditorInput()).getFile();
+				return file.exists() ? file : null;
+			}
+		}
+		return null;
 	}
 	
 	/**

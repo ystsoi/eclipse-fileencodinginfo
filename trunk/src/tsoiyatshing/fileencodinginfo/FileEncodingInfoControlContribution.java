@@ -11,10 +11,16 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.MenuAdapter;
+import org.eclipse.swt.events.MenuEvent;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.INullSelectionListener;
 import org.eclipse.ui.ISelectionListener;
@@ -23,6 +29,7 @@ import org.eclipse.ui.menus.WorkbenchWindowControlContribution;
 import org.eclipse.ui.texteditor.ITextEditor;
 
 import com.ibm.icu.text.CharsetDetector;
+import com.ibm.icu.text.CharsetMatch;
 
 /**
  * Show the file encoding information for the currently editing text file in the workspace.
@@ -57,8 +64,11 @@ public class FileEncodingInfoControlContribution extends
 		addListeners();
 		
 		// Get the encoding information.
-		String file_encoding = getCurrentTextFileCharset();
-		String detected_file_encoding = detectCurrentTextFileCharset();
+		final String current_file_encoding = getCurrentTextFileCharset();
+		final CharsetMatch[] charset_match_list = detectCurrentTextFileCharsets();
+		String detected_file_encoding = charset_match_list == null ? null : charset_match_list[0].getName();
+		int current_file_encoding_confidence = getConfidence(charset_match_list, current_file_encoding);
+		int detected_file_encoding_confidence = charset_match_list == null ? 0 : charset_match_list[0].getConfidence();
 		
 		// Give some room around the label.
 		Composite comp = new Composite(parent, SWT.NONE);
@@ -69,14 +79,57 @@ public class FileEncodingInfoControlContribution extends
 		
 		// Set the label.
 		Label file_encoding_label = new Label(comp, SWT.CENTER);
-		if (file_encoding != null || detected_file_encoding != null) {
-			file_encoding_label.setText(file_encoding + "/" + detected_file_encoding);
+		if (current_file_encoding != null) {
+			if (current_file_encoding.equals(detected_file_encoding)) {
+				file_encoding_label.setText(String.format("%s(%d%%)", current_file_encoding, current_file_encoding_confidence));
+			}
+			else {
+				file_encoding_label.setText(String.format("%s(%d%%) => %s(%d%%)?", current_file_encoding, current_file_encoding_confidence, detected_file_encoding, detected_file_encoding_confidence));
+			}
+			// Show in red color if the detected file encoding is different from the current encoding and the confidence is high.
+			file_encoding_label.setBackground(file_encoding_label.getDisplay().getSystemColor(current_file_encoding == null || current_file_encoding.equals(detected_file_encoding) || detected_file_encoding_confidence < 50 ? SWT.COLOR_WIDGET_BACKGROUND : SWT.COLOR_RED));
 		}
 		else {
 			file_encoding_label.setText("");
 		}
-		file_encoding_label.setToolTipText(file_encoding_label.getText());
-		file_encoding_label.setBackground(file_encoding_label.getDisplay().getSystemColor(file_encoding == null || file_encoding.equals(detected_file_encoding) ? SWT.COLOR_WIDGET_BACKGROUND : SWT.COLOR_RED));
+		
+		// Set the popup menu for changing file encoding.
+		if (charset_match_list != null) {
+			final Menu file_encoding_popup_menu = new Menu(file_encoding_label);
+			file_encoding_label.setMenu(file_encoding_popup_menu);
+			file_encoding_label.setToolTipText("Right-click to change the current encoding");
+			// Add the menu items dynamically.
+			file_encoding_popup_menu.addMenuListener(new MenuAdapter() {
+				@Override
+				public void menuShown(MenuEvent e) {
+					// Remove existing menu items.
+					for (MenuItem item: file_encoding_popup_menu.getItems()) item.dispose();
+					// Add menu items, the charset with the highest confidence is in the bottom.
+					for (int i = charset_match_list.length - 1; i >= 0; i--) {
+						final CharsetMatch match = charset_match_list[i];
+						final MenuItem item = new MenuItem(file_encoding_popup_menu, SWT.RADIO);
+						item.setText(match.getName() + "\t(Confidence:" + match.getConfidence() + "%)");
+						if (match.getName().equals(current_file_encoding)) {
+							item.setSelection(true);
+						}
+						item.addSelectionListener(new SelectionAdapter() {
+							@Override
+							public void widgetSelected(SelectionEvent e) {
+								if (item.getSelection()) {
+									try {
+										// Set the charset.
+										FileEncodingInfoControlContribution.this.current_text_file.setCharset(match.getName(), null);
+									} catch (CoreException e1) {
+										// TODO Auto-generated catch block
+										e1.printStackTrace();
+									}
+								}
+							}
+						});
+					}
+				}
+			});
+		}
 		
 		return comp;
 	}
@@ -164,10 +217,10 @@ public class FileEncodingInfoControlContribution extends
 	}
 	
 	/**
-	 * Detect the charset of the current text file using ICU.
-	 * @return the detected charset or "".
+	 * Detect the possible charsets of the current text file using ICU.
+	 * @return the detected charsets or null.
 	 */
-	private String detectCurrentTextFileCharset() {
+	private CharsetMatch[] detectCurrentTextFileCharsets() {
 		if (current_text_file != null) {
 			try {
 				// CharsetDetector.setText() requires that markSupported() == true.
@@ -175,7 +228,7 @@ public class FileEncodingInfoControlContribution extends
 				try {
 					CharsetDetector detector = new CharsetDetector();
 					detector.setText(in);
-					return detector.detect().getName();
+					return detector.detectAll();
 				}
 				finally {
 					in.close();
@@ -189,5 +242,20 @@ public class FileEncodingInfoControlContribution extends
 			}
 		}
 		return null;
+	}
+	
+	/**
+	 * Get the confidence of a charset, given a set of CharsetMatch.
+	 * @return the confidence of the charset, or 0 if not founded.
+	 */
+	private int getConfidence(CharsetMatch[] charset_match_list, String charset) {
+		if (charset_match_list == null || charset == null) return 0;
+		
+		for (CharsetMatch match: charset_match_list) {
+			if (match.getName().equals(charset)) {
+				return match.getConfidence();
+			}
+		}
+		return 0;
 	}
 }

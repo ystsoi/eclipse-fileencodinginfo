@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="toolbar:org.eclipse.ui.trim.status">
+         <toolbar
+               id="tsoiyatshing.fileencodinginfo.toolbars.FileEncodingInfo">
+            <control
+                  class="tsoiyatshing.fileencodinginfo.FileEncodingInfoControlContribution">
+            </control>
+         </toolbar>
+      </menuContribution>
+   </extension>
+
+</plugin>

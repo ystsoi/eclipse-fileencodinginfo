@@ -81,7 +81,8 @@ public class FileEncodingInfoControlContribution extends
 		
 		// Set the label.
 		Label file_encoding_label = new Label(comp, SWT.CENTER);
-		if (current_file_encoding != null) {
+		// The file may have been deleted if charset_match_list is null.
+		if (current_file_encoding != null && charset_match_list != null) {
 			int file_encoding_label_background_color = SWT.COLOR_WIDGET_BACKGROUND;
 			if (current_file_encoding.equals(detected_file_encoding)) {
 				file_encoding_label.setText(String.format("%s(%d%%)", current_file_encoding, current_file_encoding_confidence));

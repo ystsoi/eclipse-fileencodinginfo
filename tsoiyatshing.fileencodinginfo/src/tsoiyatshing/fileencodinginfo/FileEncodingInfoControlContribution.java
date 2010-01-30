@@ -82,14 +82,18 @@ public class FileEncodingInfoControlContribution extends
 		// Set the label.
 		Label file_encoding_label = new Label(comp, SWT.CENTER);
 		if (current_file_encoding != null) {
+			int file_encoding_label_background_color = SWT.COLOR_WIDGET_BACKGROUND;
 			if (current_file_encoding.equals(detected_file_encoding)) {
 				file_encoding_label.setText(String.format("%s(%d%%)", current_file_encoding, current_file_encoding_confidence));
 			}
 			else {
 				file_encoding_label.setText(String.format("%s(%d%%) => %s(%d%%)?", current_file_encoding, current_file_encoding_confidence, detected_file_encoding, detected_file_encoding_confidence));
+				// Show the label in red color if the confidence of the current file encoding is zero or if the confidence of the detected file encoding is high.
+				if (current_file_encoding_confidence == 0 || detected_file_encoding_confidence >= 50) {
+					file_encoding_label_background_color = SWT.COLOR_RED;
+				}
 			}
-			// Show in red color if the detected file encoding is different from the current encoding and the confidence is high.
-			file_encoding_label.setBackground(file_encoding_label.getDisplay().getSystemColor(current_file_encoding == null || current_file_encoding.equals(detected_file_encoding) || detected_file_encoding_confidence < 50 ? SWT.COLOR_WIDGET_BACKGROUND : SWT.COLOR_RED));
+			file_encoding_label.setBackground(file_encoding_label.getDisplay().getSystemColor(file_encoding_label_background_color));
 		}
 		else {
 			file_encoding_label.setText("");

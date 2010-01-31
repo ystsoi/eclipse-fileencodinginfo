@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/tsoiyatshing.fileencodinginfo.feature_1.0.0.qualifier.jar" id="tsoiyatshing.fileencodinginfo.feature" version="1.0.0.qualifier">
+   <feature url="features/tsoiyatshing.fileencodinginfo.feature_1.0.1.qualifier.jar" id="tsoiyatshing.fileencodinginfo.feature" version="1.0.1.qualifier">
       <category name="tsoiyatshing.fileencodinginfo.category"/>
    </feature>
    <category-def name="tsoiyatshing.fileencodinginfo.category" label="File Encoding Info"/>

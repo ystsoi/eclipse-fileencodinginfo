@@ -1,0 +1,17 @@
+#summary Frequently asked questions.
+#labels Featured
+
+<wiki:toc max_depth="1" />
+
+= When will encoding be shown for a file? =
+Encoding will be shown if the active editor implements the interface ITextEditor and the associated file is in the workspace.
+Editors implementing ITextEditor include Text Editor, HTML Editor, PHP Editor, Java Editor and etc.
+IResourceChangeEvent is provided for resources in the workspace only, so the file should be in the workspace.
+
+= Under what conditions will alert be shown? =
+Alert will be shown if
+  # The current encoding of the file is different from the detected encoding with the highest confidence, and the confidence of the detected encoding is larger than or equal to 50%, or
+  # The current encoding of the file is different from the detected encoding with the highest confidence, and the confidence of the current encoding is equal to 0%.
+
+= What encodings can be detected? =
+See http://userguide.icu-project.org/conversion/detection

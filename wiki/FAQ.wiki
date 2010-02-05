@@ -3,6 +3,11 @@
 
 <wiki:toc max_depth="1" />
 
+= How to install this plugin? =
+See http://help.eclipse.org/galileo/topic/org.eclipse.platform.doc.user/tasks/tasks-124.htm
+
+Update Site: http://eclipse-fileencodinginfo.googlecode.com/svn/trunk/update/
+
 = When will encoding be shown for a file? =
 Encoding will be shown if the active editor implements the interface ITextEditor and the associated file is in the workspace.
 Editors implementing ITextEditor include Text Editor, HTML Editor, PHP Editor, Java Editor and etc.

@@ -84,7 +84,7 @@ public class FileEncodingInfoControlContribution extends
 		// The file may have been deleted if charset_match_list is null.
 		if (current_file_encoding != null && charset_match_list != null) {
 			int file_encoding_label_background_color = SWT.COLOR_WIDGET_BACKGROUND;
-			if (current_file_encoding.equals(detected_file_encoding)) {
+			if (areCharsetsEqual(current_file_encoding, detected_file_encoding)) {
 				file_encoding_label.setText(String.format("%s(%d%%)", current_file_encoding, current_file_encoding_confidence));
 			}
 			else {
@@ -116,7 +116,7 @@ public class FileEncodingInfoControlContribution extends
 						final CharsetMatch match = charset_match_list[i];
 						final MenuItem item = new MenuItem(file_encoding_popup_menu, SWT.RADIO);
 						item.setText(match.getName() + "\t(Confidence:" + match.getConfidence() + "%)");
-						if (match.getName().equals(current_file_encoding)) {
+						if (areCharsetsEqual(match.getName(), current_file_encoding)) {
 							item.setSelection(true);
 						}
 						item.addSelectionListener(new SelectionAdapter() {
@@ -272,10 +272,25 @@ public class FileEncodingInfoControlContribution extends
 		if (charset_match_list == null || charset == null) return 0;
 		
 		for (CharsetMatch match: charset_match_list) {
-			if (match.getName().equals(charset)) {
+			if (areCharsetsEqual(match.getName(), charset)) {
 				return match.getConfidence();
 			}
 		}
 		return 0;
+	}
+	
+	/**
+	 * Check whether two charset strings really mean the same thing.
+	 * For UTF-8, acceptable variants are utf-8, utf8.
+	 * For Shift_JIS, acceptable variants are shift-jis, Shift-JIS, shift_jis.
+	 * @param a The first charset string.
+	 * @param b The second charset string.
+	 * @return true/false
+	 */
+	private boolean areCharsetsEqual(String a, String b) {
+		if (a == null || b == null) return false;
+		
+		// Remove dashes and underscores before comparison.
+		return a.replaceAll("[-_]", "").equalsIgnoreCase(b.replaceAll("[-_]", ""));
 	}
 }

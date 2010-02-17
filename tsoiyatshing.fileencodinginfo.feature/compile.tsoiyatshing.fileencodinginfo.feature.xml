@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project name="Compile tsoiyatshing.fileencodinginfo.feature" default="main">
-	<target name="main">
-		<ant antfile="build.xml" dir="../tsoiyatshing.fileencodinginfo" target="build.jars"/>
-	</target>
-</project>

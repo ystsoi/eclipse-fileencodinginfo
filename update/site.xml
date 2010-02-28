@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/tsoiyatshing.fileencodinginfo.feature_1.0.3.201002171516.jar" id="tsoiyatshing.fileencodinginfo.feature" version="1.0.3.201002171516">
+   <description name="File Encoding Info Update Site" url="http://eclipse-fileencodinginfo.googlecode.com/svn/trunk/update">
+      An update site for File Encoding Info.
+   </description>
+   <feature url="features/tsoiyatshing.fileencodinginfo.feature_1.0.4.201002281129.jar" id="tsoiyatshing.fileencodinginfo.feature" version="1.0.4.201002281129">
       <category name="tsoiyatshing.fileencodinginfo.category"/>
    </feature>
    <category-def name="tsoiyatshing.fileencodinginfo.category" label="File Encoding Info"/>

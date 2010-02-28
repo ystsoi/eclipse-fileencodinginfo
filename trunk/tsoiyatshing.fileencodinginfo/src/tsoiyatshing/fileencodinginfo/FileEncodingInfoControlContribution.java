@@ -3,6 +3,7 @@ package tsoiyatshing.fileencodinginfo;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResourceChangeEvent;
@@ -290,7 +291,10 @@ public class FileEncodingInfoControlContribution extends
 	private boolean areCharsetsEqual(String a, String b) {
 		if (a == null || b == null) return false;
 		
-		// Remove dashes and underscores before comparison.
-		return a.replaceAll("[-_]", "").equalsIgnoreCase(b.replaceAll("[-_]", ""));
+		try {
+			return Charset.forName(a).name().equals(Charset.forName(b).name());
+		} catch (IllegalArgumentException e) {
+			return false;
+		}
 	}
 }

@@ -1,8 +1,10 @@
 package tsoiyatshing.fileencodinginfo;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
 import org.eclipse.core.resources.IFile;
@@ -74,6 +76,17 @@ public class FileEncodingInfoControlContribution extends
 		String detected_file_encoding = charset_match_list == null ? null : charset_match_list[0].getName();
 		int current_file_encoding_confidence = getConfidence(charset_match_list, current_file_encoding);
 		int detected_file_encoding_confidence = charset_match_list == null ? 0 : charset_match_list[0].getConfidence();
+		
+		// Check whether the current text file can really be decoded by the current encoding, and adjust the confidence.
+		boolean is_current_text_file_decodable = isCurrentTextFileDecodable();
+		if (!is_current_text_file_decodable) {
+			// CharsetDetector may not read all the input data, so the confidence may not be zero even if the text cannot be decoded.
+			current_file_encoding_confidence = 0;
+		}
+		else if (current_file_encoding_confidence == 0) {
+			// CharsetDetector does not support all encodings, so the confidence may be zero even if the text can be decoded.
+			current_file_encoding_confidence = 1;
+		}
 		
 		// Use GridLayout to center the label vertically.
 		Composite comp = new Composite(parent, SWT.NONE);
@@ -278,6 +291,39 @@ public class FileEncodingInfoControlContribution extends
 			}
 		}
 		return 0;
+	}
+	
+	/**
+	 * Check whether the current text file can be decoded by the current encoding.
+	 * @return true/false.
+	 */
+	private boolean isCurrentTextFileDecodable() {
+		if (current_text_file != null) {
+			try {
+				InputStream in = current_text_file.getContents(true);
+				try {
+					ByteArrayOutputStream out = new ByteArrayOutputStream();
+					byte[] buffer = new byte[4096];
+					int len;
+					while((len = in.read(buffer)) > 0) {
+						out.write(buffer, 0, len);
+					}
+					// Try to decode the current text file using the current encoding.
+					Charset.forName(current_text_file.getCharset()).newDecoder().decode(ByteBuffer.wrap(out.toByteArray()));
+					return true;
+				}
+				finally {
+					in.close();
+				}
+			} catch (CoreException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return false;
 	}
 	
 	/**

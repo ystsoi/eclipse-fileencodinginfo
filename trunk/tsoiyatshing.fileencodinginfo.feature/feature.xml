@@ -2,7 +2,7 @@
 <feature
       id="tsoiyatshing.fileencodinginfo.feature"
       label="File Encoding Info"
-      version="1.0.4.qualifier"
+      version="1.1.0.qualifier"
       provider-name="Tsoi Yat Shing">
 
    <description url="http://code.google.com/p/eclipse-fileencodinginfo/">

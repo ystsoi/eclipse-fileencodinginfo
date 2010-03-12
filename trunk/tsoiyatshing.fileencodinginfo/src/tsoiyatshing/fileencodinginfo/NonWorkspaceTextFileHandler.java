@@ -2,12 +2,8 @@ package tsoiyatshing.fileencodinginfo;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
-import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IWorkbenchPart;
-import org.eclipse.ui.editors.text.IEncodingSupport;
 import org.eclipse.ui.ide.FileStoreEditorInput;
 import org.eclipse.ui.texteditor.ITextEditor;
 
@@ -15,22 +11,14 @@ import com.ibm.icu.text.CharsetMatch;
 
 /**
  * This handler handles non-workspace text file for ActiveDocumentAgent.
+ * Assume that the ITextEditor supports IEncodingSupport too.
  * @author Tsoi Yat Shing
  *
  */
-class NonWorkspaceTextFileHandler implements IActiveDocumentAgentHandler {
+class NonWorkspaceTextFileHandler extends EncodedDocumentHandler {
 
-	// Invoke the callback on behalf of the agent.
-	private IActiveDocumentAgentCallback callback;
-	
-	// The editor associated with this handler.
-	private ITextEditor editor;
-	
 	// The text file associated with the editor.
 	private IFileStore text_file_store = null;
-	
-	// The encoding setting of the text file.
-	private String encoding;
 	
 	// The confidence of the encoding.
 	private int encoding_confidence;
@@ -39,22 +27,19 @@ class NonWorkspaceTextFileHandler implements IActiveDocumentAgentHandler {
 	private CharsetMatch[] detected_encodings;
 
 	public NonWorkspaceTextFileHandler(IEditorPart part, IActiveDocumentAgentCallback callback) {
-		if (callback == null) throw new IllegalArgumentException("callback must not be null.");
-		if (part == null || !(part instanceof ITextEditor)) throw new IllegalArgumentException("part must be an ITextEditor.");
+		super(part, callback);
 		
-		this.callback = callback;
-		editor = (ITextEditor) part;
-		
-		if (!(editor.getEditorInput() instanceof FileStoreEditorInput)) throw new IllegalArgumentException("part must provide FileStoreEditorInput.");
+		if (!(part instanceof ITextEditor)) throw new IllegalArgumentException("part must be an ITextEditor.");
+		if (!(part.getEditorInput() instanceof FileStoreEditorInput)) throw new IllegalArgumentException("part must provide FileStoreEditorInput.");
 		
 		try {
-			text_file_store = EFS.getStore(((FileStoreEditorInput) editor.getEditorInput()).getURI());
+			text_file_store = EFS.getStore(((FileStoreEditorInput) part.getEditorInput()).getURI());
 		} catch (CoreException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		update_encoding_info();
+		updateEncodingInfoPrivately();
 	}
 
 	@Override
@@ -63,76 +48,30 @@ class NonWorkspaceTextFileHandler implements IActiveDocumentAgentHandler {
 	}
 
 	@Override
-	public IEditorPart getEditor() {
-		return editor;
-	}
-
-	@Override
-	public String getEncoding() {
-		return encoding;
-	}
-
-	@Override
 	public int getEncodingConfidence() {
 		return encoding_confidence;
 	}
 
-	@Override
-	public String getName() {
-		return text_file_store == null ? null : text_file_store.getName();
-	}
-
-	@Override
-	public void propertyChanged(Object source, int propId) {
-		if (!editor.isDirty()) {
-			// The document may be just saved.
-			if (update_encoding_info()) {
-				// Invoke the callback if the encoding information is changed.
-				callback.encodingInfoChanged();
-			}
-		}
-	}
-
-	@Override
-	public void resourceChanged(IResourceChangeEvent event) {
-		// There is no IResourceChangeEvent for non-workspace file.
-	}
-
-	@Override
-	public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-		// It seems that propertyChanged() can detect changes well already.
-	}
-
-	@Override
-	public void setEncoding(String encoding) {
-		IEncodingSupport encoding_support = (IEncodingSupport) editor.getAdapter(IEncodingSupport.class);
-		if (encoding_support != null) {
-			encoding_support.setEncoding(encoding);
-			
-			// There is no IResourceChangeEvent for non-workspace file, so invoke the callback directly.
-			if (update_encoding_info()) {
-				// Invoke the callback if the encoding information is changed.
-				callback.encodingInfoChanged();
-			}
-		}
+	/**
+	 * Update the encoding information in member variables.
+	 * This method may be overrided, but should be called by the sub-class.
+	 * @return true if the encoding information is updated.
+	 */
+	protected boolean updateEncodingInfo() {
+		return super.updateEncodingInfo() | updateEncodingInfoPrivately();
 	}
 
 	/**
-	 * Update the encoding information in member variables.
-	 * @return true if encoding information is updated.
+	 * Update the encoding information in private member variables.
+	 * @return true if the encoding information is updated.
 	 */
-	private boolean update_encoding_info() {
-		String encoding = null;
+	private boolean updateEncodingInfoPrivately() {
+		// Get the updated encoding setting.
+		String encoding = getEncoding();
+		
+		// Do detection.
 		CharsetMatch[] detected_encodings = null;
 		int encoding_confidence = 0;
-		
-		IEncodingSupport encoding_support = (IEncodingSupport) editor.getAdapter(IEncodingSupport.class);
-		if (encoding_support != null) {
-			encoding = encoding_support.getEncoding();
-			if (encoding == null) {
-				encoding = encoding_support.getDefaultEncoding();
-			}
-		}
 		
 		if (text_file_store != null) {
 			try {
@@ -155,17 +94,11 @@ class NonWorkspaceTextFileHandler implements IActiveDocumentAgentHandler {
 			}
 		}
 		
-		// TODO It seems that is_not_updated is always false.
-		boolean is_not_updated =
-			(encoding == null ? this.encoding == null : encoding.equals(this.encoding))
-			&& (encoding_confidence == this.encoding_confidence)
-			&& (detected_encodings == null ? this.detected_encodings == null : detected_encodings.equals(this.detected_encodings));
-		
-		this.encoding = encoding;
 		this.detected_encodings = detected_encodings;
 		this.encoding_confidence = encoding_confidence;
 		
-		return !is_not_updated;
+		// Just assume that the encoding information is updated.
+		return true;
 	}
 
 }

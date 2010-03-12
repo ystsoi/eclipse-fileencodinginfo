@@ -89,17 +89,17 @@ public class ActiveDocumentAgent implements INullSelectionListener, IResourceCha
 	 */
 	private IActiveDocumentAgentHandler getHandler(IEditorPart part) {
 		if (part != null) {
-			if (part instanceof ITextEditor) {
-				ITextEditor editor = (ITextEditor) part;
-				IEditorInput editor_input = editor.getEditorInput();
-				if (editor_input instanceof IFileEditorInput) {
-					return new WorkspaceTextFileHandler(part, callback);
-				}
-				else if (editor_input instanceof FileStoreEditorInput) {
-					return new NonWorkspaceTextFileHandler(part, callback);
-				}
-			}
 			if (part.getAdapter(IEncodingSupport.class) != null) {
+				if (part instanceof ITextEditor) {
+					ITextEditor editor = (ITextEditor) part;
+					IEditorInput editor_input = editor.getEditorInput();
+					if (editor_input instanceof IFileEditorInput) {
+						return new WorkspaceTextFileHandler(part, callback);
+					}
+					else if (editor_input instanceof FileStoreEditorInput) {
+						return new NonWorkspaceTextFileHandler(part, callback);
+					}
+				}
 				return new EncodedDocumentHandler(part, callback);
 			}
 		}
@@ -112,6 +112,14 @@ public class ActiveDocumentAgent implements INullSelectionListener, IResourceCha
 	 */
 	public String getName() {
 		return current_handler.getName();
+	}
+	
+	/**
+	 * Check whether the active document is dirty or not.
+	 * @return true/false
+	 */
+	public boolean isDocumentDirty() {
+		return current_handler == null ? false : (current_handler.getEditor() == null ? false : current_handler.getEditor().isDirty());
 	}
 	
 	@Override

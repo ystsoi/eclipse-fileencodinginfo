@@ -94,11 +94,18 @@ public class FileEncodingInfoControlContribution extends
 				public void menuShown(MenuEvent e) {
 					// Remove existing menu items.
 					for (MenuItem item: file_encoding_popup_menu.getItems()) item.dispose();
+					// Do not allow changing encoding when the document is dirty.
+					boolean is_document_dirty = FileEncodingInfoControlContribution.this.agent.isDocumentDirty();
+					if (is_document_dirty) {
+						MenuItem item = new MenuItem(file_encoding_popup_menu, SWT.NONE);
+						item.setText("Please save the document first.");
+					}
 					// Add menu items, the charset with the highest confidence is in the bottom.
 					for (int i = charset_match_list.length - 1; i >= 0; i--) {
 						final CharsetMatch match = charset_match_list[i];
 						final MenuItem item = new MenuItem(file_encoding_popup_menu, SWT.RADIO);
 						item.setText(match.getName() + "\t(Confidence:" + match.getConfidence() + "%)");
+						item.setEnabled(!is_document_dirty);
 						if (EncodingUtil.areCharsetsEqual(match.getName(), current_file_encoding)) {
 							item.setSelection(true);
 						}

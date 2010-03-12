@@ -37,7 +37,7 @@ class EncodedDocumentHandler implements IActiveDocumentAgentHandler {
 		
 		if (encoding_support == null) throw new IllegalArgumentException("part must provide IEncodingSupport.");
 		
-		update_encoding_info();
+		updateEncodingInfoPrivately();
 	}
 
 	@Override
@@ -67,9 +67,10 @@ class EncodedDocumentHandler implements IActiveDocumentAgentHandler {
 
 	@Override
 	public void propertyChanged(Object source, int propId) {
+		// It seems that the editor's encoding will not change when it is dirty.
 		if (!editor.isDirty()) {
 			// The document may be just saved.
-			if (update_encoding_info()) {
+			if (updateEncodingInfo()) {
 				// Invoke the callback if the encoding information is changed.
 				callback.encodingInfoChanged();
 			}
@@ -78,7 +79,7 @@ class EncodedDocumentHandler implements IActiveDocumentAgentHandler {
 
 	@Override
 	public void resourceChanged(IResourceChangeEvent event) {
-		// The editor's encoding setting may not be updated yet, so do nothing here.
+		// It seems that propertyChanged() can detect changes well already.
 	}
 
 	@Override
@@ -88,11 +89,9 @@ class EncodedDocumentHandler implements IActiveDocumentAgentHandler {
 
 	@Override
 	public void setEncoding(String encoding) {
-		// This method should be unused.
-		
 		encoding_support.setEncoding(encoding);
 		
-		if (update_encoding_info()) {
+		if (updateEncodingInfo()) {
 			// Invoke the callback if the encoding information is changed.
 			callback.encodingInfoChanged();
 		}
@@ -100,9 +99,18 @@ class EncodedDocumentHandler implements IActiveDocumentAgentHandler {
 
 	/**
 	 * Update the encoding information in member variables.
-	 * @return true if encoding information is updated.
+	 * This method may be overrided, but should be called by the sub-class.
+	 * @return true if the encoding information is updated.
 	 */
-	private boolean update_encoding_info() {
+	protected boolean updateEncodingInfo() {
+		return updateEncodingInfoPrivately();
+	}
+
+	/**
+	 * Update the encoding information in private member variables.
+	 * @return true if the encoding information is updated.
+	 */
+	private boolean updateEncodingInfoPrivately() {
 		String encoding = null;
 		
 		encoding = encoding_support.getEncoding();

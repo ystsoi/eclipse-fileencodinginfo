@@ -12,7 +12,6 @@ import org.eclipse.ui.IPropertyListener;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.editors.text.IEncodingSupport;
 import org.eclipse.ui.ide.FileStoreEditorInput;
 import org.eclipse.ui.texteditor.ITextEditor;
@@ -35,6 +34,9 @@ public class ActiveDocumentAgent implements INullSelectionListener, IResourceCha
 	// Indicate whether the agent has started monitoring the encoding of the active document.
 	private boolean is_started = false;
 	
+	// The IWorkbenchWindow to work on.
+	IWorkbenchWindow window;
+	
 	public ActiveDocumentAgent(IActiveDocumentAgentCallback callback) {
 		if (callback == null) throw new IllegalArgumentException("Please provide a callback.");
 		
@@ -49,7 +51,6 @@ public class ActiveDocumentAgent implements INullSelectionListener, IResourceCha
 	 * @return the active editor, or null if there is no active editor.
 	 */
 	private IEditorPart getActiveEditor() {
-		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 		if (window != null) {
 			IWorkbenchPage page = window.getActivePage();
 			if (page != null) {
@@ -189,13 +190,13 @@ public class ActiveDocumentAgent implements INullSelectionListener, IResourceCha
 	
 	/**
 	 * Start to monitor the encoding of the active document, if not started yet.
-	 * There should be an active workbench window.
+	 * @param window The IWorkbenchWindow to work on.
 	 */
-	public void start() {
+	public void start(IWorkbenchWindow window) {
 		if (!is_started) {
-			IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 			if (window != null) {
 				is_started = true;
+				this.window = window;
 				
 				// Update the current handler.
 				// Not invoke the callback during start.
@@ -210,21 +211,18 @@ public class ActiveDocumentAgent implements INullSelectionListener, IResourceCha
 
 	/**
 	 * Stop to monitor the encoding of the active document, if started.
-	 * There should be an active workbench window.
 	 */
 	public void stop() {
 		if (is_started) {
-			IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-			if (window != null) {
-				is_started = false;
-				
-				// Remove listeners.
-				ResourcesPlugin.getWorkspace().removeResourceChangeListener(this);
-				window.getSelectionService().removePostSelectionListener(this);
-				
-				// Reset the current handler to a dummy handler, which will remove IPropertyListener if added.
-				setCurrentHandler(getHandler(null));
-			}
+			// Remove listeners.
+			ResourcesPlugin.getWorkspace().removeResourceChangeListener(this);
+			window.getSelectionService().removePostSelectionListener(this);
+			
+			// Reset the current handler to a dummy handler, which will remove IPropertyListener if added.
+			setCurrentHandler(getHandler(null));
+			
+			window = null;
+			is_started = false;
 		}
 	}
 }

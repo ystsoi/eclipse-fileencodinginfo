@@ -41,7 +41,7 @@ public class FileEncodingInfoControlContribution extends
 	@Override
 	protected Control createControl(Composite parent) {
 		// Start the agent, if needed.
-		agent.start();
+		agent.start(getWorkbenchWindow());
 		
 		// Get the encoding information of the active document.
 		final String current_file_encoding = agent.getEncoding();

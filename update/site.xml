@@ -3,7 +3,7 @@
    <description name="File Encoding Info Update Site" url="http://eclipse-fileencodinginfo.googlecode.com/svn/trunk/update">
       An update site for File Encoding Info.
    </description>
-   <feature url="features/tsoiyatshing.fileencodinginfo.feature_1.1.2.201003141933.jar" id="tsoiyatshing.fileencodinginfo.feature" version="1.1.2.201003141933">
+   <feature url="features/tsoiyatshing.fileencodinginfo.feature_1.1.2.201003142016.jar" id="tsoiyatshing.fileencodinginfo.feature" version="1.1.2.201003142016">
       <category name="tsoiyatshing.fileencodinginfo.category"/>
    </feature>
    <category-def name="tsoiyatshing.fileencodinginfo.category" label="File Encoding Info"/>

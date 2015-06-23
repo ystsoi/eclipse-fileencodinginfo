@@ -6,3 +6,19 @@ This Eclipse plugin adds the following features to Eclipse:
 I worked in an environment where I needed to access remote files (which may be of UTF-8 or Big5) through the Remote System Explorer, but Eclipse do not detect the file encoding for me and will corrupt the file if I forget to set the file encoding properly, so I wrote this plugin.
 
 If you use Remote System Explorer, you may want to try [My RSE Extensions](http://myrseextensions.sourceforge.net/).
+
+#### Installation ####
+
+##### Via Eclipse Marketplace #####
+
+Help > Eclipse Marketplace...
+
+##### Via Update Site #####
+
+Help > Install New Software...
+
+Update Site: https://raw.githubusercontent.com/ystsoi/eclipse-fileencodinginfo/master/update
+
+#### License ####
+
+[Eclipse Public License - v 1.0](https://www.eclipse.org/legal/epl-v10.html)

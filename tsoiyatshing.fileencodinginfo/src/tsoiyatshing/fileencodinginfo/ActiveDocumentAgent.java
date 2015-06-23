@@ -1,13 +1,9 @@
 package tsoiyatshing.fileencodinginfo;
 
-import org.eclipse.core.resources.IResourceChangeEvent;
-import org.eclipse.core.resources.IResourceChangeListener;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IFileEditorInput;
-import org.eclipse.ui.INullSelectionListener;
+import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IPropertyListener;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
@@ -24,7 +20,7 @@ import com.ibm.icu.text.CharsetMatch;
  * @author Tsoi Yat Shing
  *
  */
-public class ActiveDocumentAgent implements INullSelectionListener, IResourceChangeListener, IPropertyListener {
+public class ActiveDocumentAgent implements IPartListener, IPropertyListener {
 	// Callback for this agent.
 	private IActiveDocumentAgentCallback callback;
 	
@@ -137,20 +133,37 @@ public class ActiveDocumentAgent implements INullSelectionListener, IResourceCha
 	}
 
 	@Override
-	public void resourceChanged(IResourceChangeEvent event) {
-		current_handler.resourceChanged(event);
+	public void partActivated(IWorkbenchPart part) {
+		checkActiveEditor();
 	}
 
 	@Override
-	public void selectionChanged(IWorkbenchPart part, ISelection selection) {
+	public void partBroughtToTop(IWorkbenchPart part) {
+		checkActiveEditor();
+	}
+
+	@Override
+	public void partClosed(IWorkbenchPart part) {
+		checkActiveEditor();
+	}
+
+	@Override
+	public void partDeactivated(IWorkbenchPart part) {
+		checkActiveEditor();
+	}
+
+	@Override
+	public void partOpened(IWorkbenchPart part) {
+		checkActiveEditor();
+	}
+
+	/**
+	 * Check whether the active editor is changed.
+	 */
+	private void checkActiveEditor() {
 		IEditorPart active_editor = getActiveEditor();
-		if (active_editor == current_handler.getEditor()) {
-			// Pass the event to the handler.
-			current_handler.selectionChanged(part, selection);
-		}
-		else {
+		if (active_editor != current_handler.getEditor()) {
 			// Get a new handler for the active editor, and invoke the callback.
-			// Assume that the handler has been initialized from the editor, so no need to pass the event to the handler.
 			setCurrentHandler(getHandler(active_editor));
 			callback.encodingInfoChanged();
 		}
@@ -203,8 +216,7 @@ public class ActiveDocumentAgent implements INullSelectionListener, IResourceCha
 				setCurrentHandler(getHandler(getActiveEditor()));
 				
 				// Add listeners.
-				ResourcesPlugin.getWorkspace().addResourceChangeListener(this, IResourceChangeEvent.POST_CHANGE);
-				window.getSelectionService().addPostSelectionListener(this);
+				window.getPartService().addPartListener(this);
 			}
 		}
 	}
@@ -215,8 +227,7 @@ public class ActiveDocumentAgent implements INullSelectionListener, IResourceCha
 	public void stop() {
 		if (is_started) {
 			// Remove listeners.
-			ResourcesPlugin.getWorkspace().removeResourceChangeListener(this);
-			window.getSelectionService().removePostSelectionListener(this);
+			window.getPartService().removePartListener(this);
 			
 			// Reset the current handler to a dummy handler, which will remove IPropertyListener if added.
 			setCurrentHandler(getHandler(null));

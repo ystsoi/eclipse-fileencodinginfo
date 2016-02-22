@@ -1,10 +1,12 @@
 package tsoiyatshing.fileencodinginfo;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IPropertyListener;
+import org.eclipse.ui.IStorageEditorInput;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -95,6 +97,15 @@ public class ActiveDocumentAgent implements IPartListener, IPropertyListener {
 					}
 					else if (editor_input instanceof FileStoreEditorInput) {
 						return new NonWorkspaceTextFileHandler(part, callback);
+					}
+					else if (editor_input instanceof IStorageEditorInput) {
+						try {
+							return new StorageEditorInputHandler(part, callback);
+						} catch (CoreException e) {
+							e.printStackTrace();
+							// Fallback to EncodedDocumentHandler.
+							return new EncodedDocumentHandler(part, callback);
+						}
 					}
 				}
 				return new EncodedDocumentHandler(part, callback);

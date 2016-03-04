@@ -8,6 +8,8 @@ import org.eclipse.swt.events.MenuEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -63,10 +65,13 @@ public class FileEncodingInfoControlContribution extends
 		}
 		
 		// The visible label.
-		file_encoding_label = new Label(comp, SWT.CENTER);
+		Composite file_encoding_label_parent = new Composite(comp, SWT.NONE);
+		file_encoding_label_parent.setLayout(new GridLayout());
+		file_encoding_label = new Label(file_encoding_label_parent, SWT.CENTER);
+		file_encoding_label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
 		default_background = file_encoding_label.getBackground();
 		file_encoding_popup_menu = null;
-		layout.topControl = file_encoding_label;
+		layout.topControl = file_encoding_label_parent;
 		
 		fillComp();
 		

@@ -10,6 +10,11 @@
             <control
                   class="tsoiyatshing.fileencodinginfo.FileEncodingInfoControlContribution">
             </control>
+            <command
+                  commandId="tsoiyatshing.fileencodinginfo.commands.fixheight"
+                  label="%tsoiyatshing.fileencodinginfo.commands.fixheight"
+                  style="push">
+            </command>
          </toolbar>
       </menuContribution>
    </extension>

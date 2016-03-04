@@ -3,7 +3,7 @@
    <description name="File Encoding Info Update Site" url="https://raw.githubusercontent.com/ystsoi/eclipse-fileencodinginfo/master/update">
       An update site for File Encoding Info.
    </description>
-   <feature url="features/tsoiyatshing.fileencodinginfo.feature_1.2.0.201506232021.jar" id="tsoiyatshing.fileencodinginfo.feature" version="1.2.0.201506232021">
+   <feature url="features/tsoiyatshing.fileencodinginfo.feature_1.3.0.201603041732.jar" id="tsoiyatshing.fileencodinginfo.feature" version="1.3.0.201603041732">
       <category name="tsoiyatshing.fileencodinginfo.category"/>
    </feature>
    <category-def name="tsoiyatshing.fileencodinginfo.category" label="File Encoding Info"/>

@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: File Encoding Info
 Bundle-SymbolicName: tsoiyatshing.fileencodinginfo;singleton:=true
-Bundle-Version: 1.3.0.qualifier
+Bundle-Version: 1.4.0.qualifier
 Bundle-Activator: tsoiyatshing.fileencodinginfo.Activator
 Bundle-Vendor: Tsoi Yat Shing
 Require-Bundle: org.eclipse.ui,

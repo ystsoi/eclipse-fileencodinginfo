@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <description name="File Encoding Info Update Site" url="https://raw.githubusercontent.com/ystsoi/eclipse-fileencodinginfo/master/update/1.4.0">
+      An update site for File Encoding Info.
+   </description>
+   <feature url="features/tsoiyatshing.fileencodinginfo.feature_1.4.0.201604122248.jar" id="tsoiyatshing.fileencodinginfo.feature" version="1.4.0.201604122248">
+      <category name="tsoiyatshing.fileencodinginfo.category"/>
+   </feature>
+   <category-def name="tsoiyatshing.fileencodinginfo.category" label="File Encoding Info"/>
+</site>

@@ -12,7 +12,6 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.editors.text.IEncodingSupport;
 import org.eclipse.ui.ide.FileStoreEditorInput;
-import org.eclipse.ui.texteditor.ITextEditor;
 
 import com.ibm.icu.text.CharsetMatch;
 
@@ -89,8 +88,8 @@ public class ActiveDocumentAgent implements IPartListener, IPropertyListener {
 	private IActiveDocumentAgentHandler getHandler(IEditorPart part) {
 		if (part != null) {
 			if (part.getAdapter(IEncodingSupport.class) != null) {
-				if (part instanceof ITextEditor) {
-					ITextEditor editor = (ITextEditor) part;
+				if (part instanceof IEditorPart) {
+					IEditorPart editor = (IEditorPart) part;
 					IEditorInput editor_input = editor.getEditorInput();
 					if (editor_input instanceof IFileEditorInput) {
 						return new WorkspaceTextFileHandler(part, callback);

@@ -5,7 +5,6 @@ import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.ide.FileStoreEditorInput;
-import org.eclipse.ui.texteditor.ITextEditor;
 
 import com.ibm.icu.text.CharsetMatch;
 
@@ -29,7 +28,6 @@ class NonWorkspaceTextFileHandler extends EncodedDocumentHandler {
 	public NonWorkspaceTextFileHandler(IEditorPart part, IActiveDocumentAgentCallback callback) {
 		super(part, callback);
 		
-		if (!(part instanceof ITextEditor)) throw new IllegalArgumentException("part must be an ITextEditor.");
 		if (!(part.getEditorInput() instanceof FileStoreEditorInput)) throw new IllegalArgumentException("part must provide FileStoreEditorInput.");
 		
 		try {

@@ -4,7 +4,6 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IFileEditorInput;
-import org.eclipse.ui.texteditor.ITextEditor;
 
 import com.ibm.icu.text.CharsetMatch;
 
@@ -28,7 +27,6 @@ class WorkspaceTextFileHandler extends EncodedDocumentHandler {
 	public WorkspaceTextFileHandler(IEditorPart part, IActiveDocumentAgentCallback callback) {
 		super(part, callback);
 		
-		if (!(part instanceof ITextEditor)) throw new IllegalArgumentException("part must be an ITextEditor.");
 		if (!(part.getEditorInput() instanceof IFileEditorInput)) throw new IllegalArgumentException("part must provide IFileEditorInput.");
 		
 		text_file = ((IFileEditorInput) part.getEditorInput()).getFile();

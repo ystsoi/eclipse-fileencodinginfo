@@ -4,7 +4,6 @@ import org.eclipse.core.resources.IStorage;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IStorageEditorInput;
-import org.eclipse.ui.texteditor.ITextEditor;
 
 import com.ibm.icu.text.CharsetMatch;
 
@@ -28,7 +27,6 @@ class StorageEditorInputHandler extends EncodedDocumentHandler {
 	public StorageEditorInputHandler(IEditorPart part, IActiveDocumentAgentCallback callback) throws CoreException {
 		super(part, callback);
 		
-		if (!(part instanceof ITextEditor)) throw new IllegalArgumentException("part must be an ITextEditor.");
 		if (!(part.getEditorInput() instanceof IStorageEditorInput)) throw new IllegalArgumentException("part must provide IStorageEditorInput.");
 		
 		storage = ((IStorageEditorInput) part.getEditorInput()).getStorage();
